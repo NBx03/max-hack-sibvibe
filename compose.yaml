@@ -1,0 +1,128 @@
+# Одна команда для запуска всех локальных компонентов решения:
+#   docker compose up --build
+#
+# Состав: postgres (метаданные) + minio (файлы) + backend (Spring Boot) + frontend (nginx).
+# Внешний сервис, невоспроизводимый внутри Docker, ровно один - GigaChat API.
+# Его назначение и условия проверки описаны в README, раздел "Внешние сервисы".
+
+name: max-approval
+
+services:
+  postgres:
+    image: ${BASE_REGISTRY:-public.ecr.aws/docker/library}/postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-approval}
+      POSTGRES_USER: ${DB_USER:-approval}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD не задан - скопируйте .env.example в .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      # Без healthcheck бэкенд стартует раньше готовности БД и падает на первом же up.
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-approval} -d ${DB_NAME:-approval}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:?MINIO_ACCESS_KEY не задан}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?MINIO_SECRET_KEY не задан}
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  # Одноразовый сервис: создаёт бакет и завершается.
+  # Без него первая загрузка документа упала бы на отсутствующем бакете.
+  minio-init:
+    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $$MINIO_ROOT_USER $$MINIO_ROOT_PASSWORD &&
+      mc mb --ignore-existing local/$$MINIO_BUCKET &&
+      echo 'bucket ready';
+      "
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-documents}
+    restart: "no"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        BASE_REGISTRY: ${BASE_REGISTRY:-public.ecr.aws/docker/library}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-approval}
+      DB_USER: ${DB_USER:-approval}
+      DB_PASSWORD: ${DB_PASSWORD}
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET:-documents}
+      GIGACHAT_CREDENTIALS: ${GIGACHAT_CREDENTIALS:-}
+      GIGACHAT_CLIENT_ID: ${GIGACHAT_CLIENT_ID:-}
+      GIGACHAT_SCOPE: ${GIGACHAT_SCOPE:-GIGACHAT_API_PERS}
+      GIGACHAT_MODEL: ${GIGACHAT_MODEL:-GigaChat-2-Max}
+      MAX_BOT_TOKEN: ${MAX_BOT_TOKEN:-}
+      MAX_BOT_ENABLED: ${MAX_BOT_ENABLED:-true}
+      MAX_BOT_API_URL: ${MAX_BOT_API_URL:-https://platform-api2.max.ru}
+      # polling локально, webhook на стенде сдачи
+      MAX_BOT_UPDATE_MODE: ${MAX_BOT_UPDATE_MODE:-polling}
+      # Только для webhook: публичный адрес backend, куда MAX шлёт обновления бота.
+      MAX_BOT_WEBHOOK_URL: ${MAX_BOT_WEBHOOK_URL:-}
+      MAX_BOT_WEBHOOK_SECRET: ${MAX_BOT_WEBHOOK_SECRET:-}
+      MAX_MINI_APP_URL: ${MAX_MINI_APP_URL:-}
+      DEMO_MODE: ${DEMO_MODE:-false}
+      AI_ENABLED: ${AI_ENABLED:-true}
+      AI_TIMEOUT_SECONDS: ${AI_TIMEOUT_SECONDS:-30}
+      # Напоминание о застрявшем шаге: для демо снизьте REMINDERS_STUCK_AFTER_HOURS
+      # и учащите REMINDERS_CRON, не пересобирая образ.
+      REMINDERS_ENABLED: ${REMINDERS_ENABLED:-true}
+      REMINDERS_CRON: "${REMINDERS_CRON:-0 0 8 * * *}"
+      REMINDERS_STUCK_AFTER_HOURS: ${REMINDERS_STUCK_AFTER_HOURS:-48}
+      REMINDERS_COOLDOWN_HOURS: ${REMINDERS_COOLDOWN_HOURS:-24}
+    ports:
+      # Только 127.0.0.1: снаружи бэкенд доступен лишь через nginx фронтенда,
+      # а не по голому HTTP в обход HTTPS стенда.
+      - "127.0.0.1:${BACKEND_PORT:-8080}:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        BASE_REGISTRY: ${BASE_REGISTRY:-public.ecr.aws/docker/library}
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      # Тоже 127.0.0.1: на стенде HTTPS даёт Caddy на хосте и проксирует сюда.
+      - "127.0.0.1:${FRONTEND_PORT:-8081}:80"
+
+volumes:
+  postgres-data:
+  minio-data:

@@ -1,0 +1,20 @@
+# Команда работает на Windows, а собирается всё в Linux-контейнерах.
+# CRLF внутри образа ломает shell-строки и entrypoint - нормализуем в LF.
+* text=auto eol=lf
+
+# Бинарники не трогать.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
+*.ttf binary
+*.jar binary
+*.woff binary
+*.woff2 binary
+
+# Лок-файлы в diff не разворачивать - шум при ревью.
+package-lock.json -diff

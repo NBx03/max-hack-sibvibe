@@ -1,0 +1,10 @@
+# Чем меньше контекст сборки, тем быстрее docker build - работает на лимит 5 минут.
+target/
+.git
+.gitignore
+.env
+.env.*
+*.md
+.idea/
+.vscode/
+*.iml

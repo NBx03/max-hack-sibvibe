@@ -1,0 +1,52 @@
+/*
+ * Приложение занимает ровно видимую область мини-приложения, не больше: прокручивается
+ * только содержимое экрана, а не страница целиком. Иначе в веб-версии MAX прокручивалось
+ * окно самого MAX, и закреплённые кнопки уезжали за край. --app-height выставляет
+ * app/viewport.ts по размеру от MAX Bridge (getViewportSize) и innerHeight; 100dvh — запасной.
+ * .MaxUI__ (корневой div <MaxUI>) красит себя в var(--background-primary): тема живёт на нём.
+ */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.app-root {
+  height: 100dvh;
+  height: var(--app-height, 100dvh);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/*
+ * Рамка приложения — одна колонка на всё: плашка демо, экран и закреплённые кнопки. На широком окне
+ * (веб-версия MAX во весь экран, монитор 27") приложение выглядит как экран телефона посреди окна: колонка
+ * 560px с границами по бокам, поле вокруг — вторичным фоном.
+ */
+.app-frame {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--background-primary);
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .app-root {
+    background: var(--background-secondary) !important;
+  }
+
+  .app-frame {
+    border-left: 1px solid var(--divider-primary);
+    border-right: 1px solid var(--divider-primary);
+  }
+}
+
+/* Цвета статусов и остальные токены — в дизайн-системе: ui/tokens.css. */

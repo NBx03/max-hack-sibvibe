@@ -1,0 +1,164 @@
+{
+  "comment": "Единый источник полей и правил проверки: четыре типа с подробной проверкой и GENERIC — общие реквизиты любого другого документа, только предупреждения. Из него делается миграцию справочника, generate.py — docs/RULES.md. Поля правила совпадают с RequirementRule и таблицей requirement_rule. Коды правил (M1, V1, S1) — только для документации и тестов, в базу не пишутся. Вид LEGAL — только если закон сам определяет проверяемое требование, а не если он лишь объясняет, зачем оно нужно.",
+  "sourceCheckedAt": "2026-09-21",
+  "sources": {
+    "GOST": {
+      "title": "ГОСТ Р 7.0.97-2016 «Организационно-распорядительная документация. Требования к оформлению документов» (утв. приказом Росстандарта от 08.12.2016 № 2004-ст, ред. от 14.05.2018), принят в компании как стандарт оформления",
+      "url": "https://www.consultant.ru/document/cons_doc_LAW_216461/333ec0789d0d87106250cb3f90cac4294946a059/"
+    },
+    "MEMO_POLICY": {
+      "title": "Типовые правила оформления служебных записок (шаблон сервиса на основе ГОСТ Р 7.0.97-2016; компания настраивает под свою инструкцию)",
+      "url": null
+    },
+    "VACATION_POLICY": {
+      "title": "Типовые правила оформления заявлений на отпуск (шаблон сервиса; компания настраивает под своё положение)",
+      "url": null
+    },
+    "TRIP_POLICY": {
+      "title": "Типовые правила оформления заявок на командировку (шаблон сервиса; компания настраивает под своё положение)",
+      "url": null
+    },
+    "PRODUCT": {
+      "title": "Правило продукта",
+      "url": null
+    },
+    "LAW_209_ART_4_1": {
+      "title": "Федеральный закон от 24.07.2007 № 209-ФЗ «О развитии малого и среднего предпринимательства в Российской Федерации» (ред. от 26.06.2026)",
+      "url": "https://www.consultant.ru/document/cons_doc_LAW_52144/5fe8b4bb79963ee83f19de5d78912c3bbf4ef7d4/"
+    }
+  },
+  "types": [
+    {
+      "code": "OFFICIAL_MEMO",
+      "name": "Служебная записка",
+      "fields": [
+        { "name": "addressee", "type": "PERSON", "label": "Кому", "hint": "Адресат: должность и ФИО, как в документе, одной строкой. Пусто, если адресата нет." },
+        { "name": "author_name", "type": "PERSON", "label": "От кого", "hint": "Составитель записки: ФИО, как в документе." },
+        { "name": "doc_date", "type": "DATE", "label": "Дата", "hint": "Дата записки точно в том виде, как она написана в документе, без приведения к другому формату." },
+        { "name": "reg_number", "type": "STRING", "label": "Номер", "hint": "Регистрационный номер после знака «№», без самого знака. Пусто, если номера нет." },
+        { "name": "subject", "type": "STRING", "label": "Заголовок", "hint": "Заголовок к тексту — краткое содержание над текстом, как в документе. Пусто, если заголовка нет." },
+        { "name": "body", "type": "STRING", "label": "Текст", "hint": "Основной текст записки целиком, без адресата, заголовка и подписи." },
+        { "name": "signer_position", "type": "STRING", "label": "Должность подписавшего", "hint": "Наименование должности в подписи. Пусто, если в подписи нет должности." },
+        { "name": "signer_name", "type": "PERSON", "label": "Расшифровка подписи", "hint": "Инициалы и фамилия в подписи точно как в документе." }
+      ],
+      "rules": [
+        { "code": "M1", "field": "addressee", "check": "REQUIRED", "expected": null, "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "GOST", "sourceRef": "п. 5.15",
+          "description": "Укажите адресата — кому адресована записка: должность и ФИО." },
+        { "code": "M2", "field": "doc_date", "check": "REQUIRED", "expected": null, "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "GOST", "sourceRef": "п. 5.10",
+          "description": "Укажите дату записки." },
+        { "code": "M3", "field": "doc_date", "check": "DATE_FORMAT", "expected": "RU_DATE", "kind": "INTERNAL_POLICY", "severity": "WARNING", "source": "GOST", "sourceRef": "п. 5.10",
+          "description": "Запишите дату полностью — число, месяц и год: цифрами (23.09.2026) или словесно-цифровым способом («23» сентября 2026 г.). Оба способа допускает ГОСТ." },
+        { "code": "M4", "field": "doc_date", "check": "DATE_NOT_FUTURE", "expected": "RU_DATE", "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "GOST", "sourceRef": "п. 5.10",
+          "description": "Дата записки — это дата подписания, она не может быть позже сегодняшнего дня." },
+        { "code": "M5", "field": "reg_number", "check": "MATCHES_PATTERN", "expected": "СЗ-\\d{1,5}", "kind": "INTERNAL_POLICY", "severity": "WARNING", "source": "MEMO_POLICY", "sourceRef": "индекс «СЗ» для служебных записок; ГОСТ Р 7.0.97-2016, п. 5.11, оставляет индексы на усмотрение организации",
+          "description": "Номер служебной записки — в формате СЗ-<порядковый номер>, например СЗ-117. Если номера ещё нет, его присвоят при регистрации." },
+        { "code": "M6", "field": "subject", "check": "MATCHES_PATTERN", "expected": "(О|Об)\\s.+", "kind": "INTERNAL_POLICY", "severity": "WARNING", "source": "GOST", "sourceRef": "п. 5.17",
+          "description": "Заголовок начинается с предлога «О» или «Об» и отвечает на вопрос «о чём?», например «О закупке ноутбуков»." },
+        { "code": "M7", "field": "body", "check": "REQUIRED", "expected": null, "kind": "PRODUCT_RULE", "severity": "BLOCKER", "source": "PRODUCT", "sourceRef": null,
+          "description": "В записке нет текста — согласовывать нечего." },
+        { "code": "M8", "field": "body", "check": "MIN_LENGTH", "expected": "50", "kind": "PRODUCT_RULE", "severity": "INFO", "source": "PRODUCT", "sourceRef": null,
+          "description": "Текст короче 50 символов: проверьте, что записка загружена целиком и в ней понятно, что нужно согласовать." },
+        { "code": "M9", "field": "signer_position", "check": "REQUIRED", "expected": null, "kind": "INTERNAL_POLICY", "severity": "WARNING", "source": "MEMO_POLICY", "sourceRef": "служебные записки оформляются не на бланке должностного лица, поэтому должность в подписи указывается",
+          "description": "Укажите в подписи должность подписывающего: служебная записка оформляется не на бланке должностного лица." },
+        { "code": "M10", "field": "signer_name", "check": "MATCHES_PATTERN", "expected": "[А-ЯЁ]\\.\\s?[А-ЯЁ]\\.\\s?[А-ЯЁ][а-яё]+(-[А-ЯЁ][а-яё]+)?", "kind": "INTERNAL_POLICY", "severity": "WARNING", "source": "GOST", "sourceRef": "п. 5.22",
+          "description": "По ГОСТ в расшифровке подписи сначала инициалы, потом фамилия: «А.С. Петрова», а не «Петрова А.С.» и не полное имя." }
+      ]
+    },
+    {
+      "code": "VACATION_REQUEST",
+      "name": "Заявление на отпуск",
+      "fields": [
+        { "name": "employee_name", "type": "PERSON", "label": "Сотрудник", "hint": "ФИО сотрудника, который просит отпуск, полностью, в именительном падеже. Не адресат заявления (кому оно написано) и не согласовавший его руководитель. Пусто, если сотрудник не назван." },
+        { "name": "employee_position", "type": "STRING", "label": "Должность", "hint": "Должность сотрудника в именительном падеже, строчными буквами." },
+        { "name": "vacation_type", "type": "STRING", "label": "Вид отпуска", "hint": "Вид отпуска строчными буквами без слова «отпуск»: «ежегодный оплачиваемый», «без сохранения заработной платы», «учебный» и т. п., как следует из текста." },
+        { "name": "start_date", "type": "DATE", "label": "Начало отпуска", "hint": "Дата начала отпуска точно в том виде, как она написана, без предлога «с»." },
+        { "name": "days_count", "type": "NUMBER", "label": "Календарных дней", "hint": "Количество календарных дней отпуска точно как в документе: цифрами или словами." }
+      ],
+      "rules": [
+        { "code": "V1", "field": "employee_name", "check": "REQUIRED", "expected": null, "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "VACATION_POLICY", "sourceRef": null,
+          "description": "Укажите ФИО сотрудника, который просит отпуск." },
+        { "code": "V2", "field": "vacation_type", "check": "ONE_OF", "expected": "[\"ежегодный оплачиваемый\",\"без сохранения заработной платы\"]", "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "VACATION_POLICY", "sourceRef": null,
+          "description": "Этим заявлением оформляют ежегодный оплачиваемый отпуск или отпуск без сохранения заработной платы. Учебный и другие виды отпуска — отдельным заявлением с подтверждающими документами." },
+        { "code": "V3", "field": "start_date", "check": "REQUIRED", "expected": null, "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "VACATION_POLICY", "sourceRef": null,
+          "description": "Укажите дату начала отпуска." },
+        { "code": "V4", "field": "start_date", "check": "DATE_FORMAT", "expected": "RU_DATE", "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "VACATION_POLICY", "sourceRef": null,
+          "description": "Дату начала отпуска пишут полностью, с годом: 01.10.2026 или 1 октября 2026 г. — без года кадровик не поймёт, о каком годе речь." },
+        { "code": "V5", "field": "days_count", "check": "MATCHES_PATTERN", "expected": "[1-9][0-9]*", "kind": "PRODUCT_RULE", "severity": "BLOCKER", "source": "PRODUCT", "sourceRef": null,
+          "description": "Количество календарных дней — целым положительным числом, цифрами, например 14: число прописью проверить нельзя." }
+      ]
+    },
+    {
+      "code": "SUPPORT_MEASURE_REQUEST",
+      "name": "Заявка на меру поддержки",
+      "fields": [
+        { "name": "applicant_name", "type": "ORGANIZATION", "label": "Заявитель", "hint": "Наименование организации или ФИО индивидуального предпринимателя, как в заявке. Пусто, если заявитель не указан." },
+        { "name": "applicant_inn", "type": "STRING", "label": "ИНН", "hint": "ИНН заявителя точно как в документе, без пробелов. Пусто, если ИНН нет." },
+        { "name": "smb_category", "type": "STRING", "label": "Категория субъекта МСП", "hint": "Категория заявителя строчными буквами, как указана в заявке: например «малое предприятие»." },
+        { "name": "support_type", "type": "STRING", "label": "Вид поддержки", "hint": "Какую поддержку просит заявитель, кратко, как в заявке. Пусто, если не указано." }
+      ],
+      "rules": [
+        { "code": "S1", "field": "applicant_name", "check": "REQUIRED", "expected": null, "kind": "PRODUCT_RULE", "severity": "BLOCKER", "source": "PRODUCT", "sourceRef": null,
+          "description": "Укажите заявителя: наименование организации или ФИО индивидуального предпринимателя. Его видят согласующие и организация поддержки." },
+        { "code": "S2", "field": "support_type", "check": "REQUIRED", "expected": null, "kind": "PRODUCT_RULE", "severity": "BLOCKER", "source": "PRODUCT", "sourceRef": null,
+          "description": "Укажите, какую поддержку запрашиваете: без этого заявку не к чему приложить." },
+        { "code": "S3", "field": "applicant_inn", "check": "REQUIRED", "expected": null, "kind": "PRODUCT_RULE", "severity": "BLOCKER", "source": "PRODUCT", "sourceRef": null,
+          "description": "Укажите ИНН заявителя: по нему организация поддержки проверяет заявителя в едином реестре субъектов МСП." },
+        { "code": "S4", "field": "applicant_inn", "check": "MATCHES_PATTERN", "expected": "\\d{10}|\\d{12}", "kind": "PRODUCT_RULE", "severity": "BLOCKER", "source": "PRODUCT", "sourceRef": null,
+          "description": "ИНН — 10 цифр у организации или 12 цифр у индивидуального предпринимателя." },
+        { "code": "S5", "field": "smb_category", "check": "REQUIRED", "expected": null, "kind": "PRODUCT_RULE", "severity": "BLOCKER", "source": "PRODUCT", "sourceRef": null,
+          "description": "Укажите категорию субъекта МСП: от неё зависит, на какую поддержку заявитель может претендовать." },
+        { "code": "S6", "field": "smb_category", "check": "ONE_OF", "expected": "[\"микропредприятие\",\"малое предприятие\",\"среднее предприятие\"]", "kind": "LEGAL", "severity": "BLOCKER", "source": "LAW_209_ART_4_1", "sourceRef": "ст. 4.1, ч. 3, п. 5",
+          "description": "По закону категорий субъектов МСП три: микропредприятие, малое предприятие, среднее предприятие. «Индивидуальный предприниматель» — это форма, а не категория." }
+      ]
+    },
+    {
+      "code": "BUSINESS_TRIP_REQUEST",
+      "name": "Заявка на командировку",
+      "fields": [
+        { "name": "employee_name", "type": "PERSON", "label": "Сотрудник", "hint": "ФИО сотрудника, которого направляют в командировку, полностью, в именительном падеже. Не адресат заявки (кому она написана) и не подписавший её руководитель. Пусто, если сотрудник не назван." },
+        { "name": "destination", "type": "STRING", "label": "Место командировки", "hint": "Город, куда направляется сотрудник, и организация, если она названа, как в документе. Пусто, если место не указано." },
+        { "name": "purpose", "type": "STRING", "label": "Цель командировки", "hint": "Цель поездки одной фразой, как в документе: «участие в выставке», «переговоры с заказчиком». Пусто, если цель не указана." },
+        { "name": "start_date", "type": "DATE", "label": "Начало командировки", "hint": "Дата начала командировки точно в том виде, как она написана, без предлога «с». Не дата составления заявки. Пусто, если даты начала нет." },
+        { "name": "days_count", "type": "NUMBER", "label": "Календарных дней", "hint": "Только количество дней — само число, как в документе: цифрами («5») или словом («пять»), без слов «дней» и «календарных дней»." }
+      ],
+      "rules": [
+        { "code": "T1", "field": "employee_name", "check": "REQUIRED", "expected": null, "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "TRIP_POLICY", "sourceRef": null,
+          "description": "Укажите ФИО сотрудника, которого направляют в командировку." },
+        { "code": "T2", "field": "destination", "check": "REQUIRED", "expected": null, "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "TRIP_POLICY", "sourceRef": null,
+          "description": "Укажите место командировки — город и, если известно, организацию: по нему бухгалтерия считает расходы." },
+        { "code": "T3", "field": "purpose", "check": "REQUIRED", "expected": null, "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "TRIP_POLICY", "sourceRef": null,
+          "description": "Укажите цель командировки: по ней директор решает, нужна ли поездка." },
+        { "code": "T4", "field": "start_date", "check": "REQUIRED", "expected": null, "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "TRIP_POLICY", "sourceRef": null,
+          "description": "Укажите дату начала командировки." },
+        { "code": "T5", "field": "start_date", "check": "DATE_FORMAT", "expected": "RU_DATE", "kind": "INTERNAL_POLICY", "severity": "BLOCKER", "source": "TRIP_POLICY", "sourceRef": null,
+          "description": "Дату начала командировки пишут полностью, с годом: 05.10.2026 или 5 октября 2026 г. — без года не понять, о каком годе речь." },
+        { "code": "T6", "field": "days_count", "check": "MATCHES_PATTERN", "expected": "[1-9][0-9]*", "kind": "PRODUCT_RULE", "severity": "BLOCKER", "source": "PRODUCT", "sourceRef": null,
+          "description": "Срок командировки — целым положительным числом календарных дней, цифрами, например 5: число прописью проверить нельзя." }
+      ]
+    },
+    {
+      "code": "GENERIC",
+      "name": "Другой документ",
+      "fields": [
+        { "name": "doc_kind", "type": "STRING", "label": "Вид документа", "hint": "Вид документа, как он назван в самом документе: «Приказ», «Договор», «Акт», «Письмо». Пусто, если вид не указан." },
+        { "name": "doc_date", "type": "DATE", "label": "Дата", "hint": "Дата документа (подписания или составления) точно в том виде, как она написана, без приведения к другому формату." },
+        { "name": "reg_number", "type": "STRING", "label": "Номер", "hint": "Регистрационный номер документа после знака «№», без самого знака. Пусто, если номера нет." },
+        { "name": "subject", "type": "STRING", "label": "Заголовок", "hint": "Заголовок к тексту или название документа — о чём он, как в документе. Пусто, если заголовка нет." },
+        { "name": "signer_position", "type": "STRING", "label": "Должность подписавшего", "hint": "Должность в подписи. Пусто, если в подписи нет должности." },
+        { "name": "signer_name", "type": "PERSON", "label": "Расшифровка подписи", "hint": "Инициалы и фамилия в подписи точно как в документе. Пусто, если подписи нет." }
+      ],
+      "rules": [
+        { "code": "G1", "field": "doc_date", "check": "REQUIRED", "expected": null, "kind": "PRODUCT_RULE", "severity": "WARNING", "source": "PRODUCT", "sourceRef": null,
+          "description": "Не нашли дату документа. Без даты непонятно, какая редакция документа согласована." },
+        { "code": "G2", "field": "doc_date", "check": "DATE_FORMAT", "expected": "RU_DATE", "kind": "PRODUCT_RULE", "severity": "WARNING", "source": "PRODUCT", "sourceRef": null,
+          "description": "Дату не удалось прочитать: запишите её полностью — например, 23.09.2026 или «23» сентября 2026 г." },
+        { "code": "G3", "field": "subject", "check": "REQUIRED", "expected": null, "kind": "PRODUCT_RULE", "severity": "INFO", "source": "PRODUCT", "sourceRef": null,
+          "description": "Не нашли заголовок: по нему согласующие сразу понимают, о чём документ." },
+        { "code": "G4", "field": "signer_name", "check": "REQUIRED", "expected": null, "kind": "PRODUCT_RULE", "severity": "WARNING", "source": "PRODUCT", "sourceRef": null,
+          "description": "Не нашли подпись с расшифровкой: из документа должно быть понятно, кто его подписывает." },
+        { "code": "G5", "field": "reg_number", "check": "REQUIRED", "expected": null, "kind": "PRODUCT_RULE", "severity": "INFO", "source": "PRODUCT", "sourceRef": null,
+          "description": "Не нашли регистрационный номер. Если документы в компании регистрируют, номер присвоят при регистрации." }
+      ]
+    }
+  ]
+}

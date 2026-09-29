@@ -1,0 +1,51 @@
+# Секреты - никогда в репозиторий (правило кейса: ноль рабочих токенов в коде)
+.env
+.env.local
+*.pem
+# Исключение: публичные корневые сертификаты, не секреты.
+!backend/certs/*.pem
+*.key
+*.p12
+
+# Java / Maven
+backend/target/
+*.jar
+*.class
+!.mvn/wrapper/maven-wrapper.jar
+
+# Node
+node_modules/
+frontend/dist/
+npm-debug.log*
+.vite/
+
+# ВАЖНО: package-lock.json и pom.xml коммитятся - кейс требует
+# зафиксированный файл зависимостей с версиями.
+
+# IDE
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Логи и временное
+*.log
+tmp/
+
+# Артефакт инкрементальной сборки TypeScript
+*.tsbuildinfo
+
+# Внутренние материалы команды: планы, согласования, итоговые решения.
+/internal/
+/docs/*.pdf
+/docs/src/
+
+# Служебные файлы Word рядом с открытым документом
+~$*
+
+

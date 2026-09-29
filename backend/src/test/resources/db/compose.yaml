@@ -1,0 +1,17 @@
+# Изолированная пустая БД для проверки миграций; данные живут только до удаления контейнера.
+services:
+  postgres:
+    image: public.ecr.aws/docker/library/postgres:16-alpine@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+    environment:
+      POSTGRES_DB: schema_test
+      POSTGRES_USER: schema_test
+      POSTGRES_PASSWORD: ${SCHEMA_TEST_PASSWORD:?Задайте случайный пароль тестового PostgreSQL}
+    ports:
+      - "127.0.0.1::5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U schema_test -d schema_test"]
+      interval: 2s
+      timeout: 3s
+      retries: 30

@@ -1,0 +1,7 @@
+python-docx==1.2.0
+reportlab==5.0.1
+# Транзитивные зависимости тоже зафиксированы: от них зависит сериализация файлов.
+lxml==6.0.2
+typing_extensions==4.15.0
+pillow==10.4.0
+charset-normalizer==3.3.2

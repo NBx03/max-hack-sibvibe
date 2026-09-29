@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Согласование документов</title>
+    <!--
+      MAX Bridge подключается скриптом и отдаёт window.WebApp.
+      Отдельного npm-пакета у Bridge нет - это не забытая зависимость.
+      Адрес сверен с dev.max.ru/docs/webapps/bridge (2026-09-19); библиотека
+      инициализируется сама при загрузке, отдельного вызова ready() не требует.
+    -->
+    <script src="https://st.max.ru/js/max-web-app.js"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

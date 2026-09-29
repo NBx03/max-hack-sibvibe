@@ -1,0 +1,116 @@
+/*
+ * Дизайн-система — токены. Цвета интерфейса берутся из темы
+ * @maxhub/max-ui (--background-*, --text-*, --button-*), здесь — только то, чего в ней нет: отступы, размеры,
+ * скругления и палитра статусов. В компонентах числа и HEX не пишем — только эти переменные.
+ */
+:root {
+  /* Отступы: край экрана 16, внутри группы 8, между группами 16–24. */
+  --ds-space-2xs: 4px;
+  --ds-space-xs: 8px;
+  --ds-space-s: 12px;
+  --ds-space-m: 16px;
+  --ds-space-l: 24px;
+  --ds-space-xl: 32px;
+  --ds-gutter: 16px;
+
+  /* Размеры: минимальная зона нажатия 44, кнопки — 48. */
+  --ds-tap: 44px;
+  --ds-control: 48px;
+  --ds-radius-s: 8px;
+  --ds-radius-m: 12px;
+  --ds-radius-l: 16px;
+  --ds-radius-pill: 999px;
+
+  /* Типографика: второстепенный текст не мельче 13 px. */
+  --ds-text-xs: 13px;
+  --ds-text-s: 14px;
+  --ds-text-m: 16px;
+  --ds-text-l: 20px;
+  --ds-text-xl: 24px;
+}
+
+/*
+ * Псевдонимы цветов темы max-ui. Задаются на корне <MaxUI className="app-root">, а не на :root: цвета темы живут
+ * на этом элементе, и на :root ссылка var(--background-secondary) была бы пустой.
+ */
+.app-root {
+  --ds-surface: var(--background-secondary);
+  --ds-surface-raised: var(--background-card);
+  --ds-border: var(--divider-primary);
+  --ds-accent: var(--button-primary);
+}
+
+/*
+ * Палитра статусов. Один тон — один смысл во всём приложении: метка документа, точки
+ * таймлайна, статусы людей. Стиль метки: фон — цвет тона с низкой непрозрачностью, текст — светлый оттенок того
+ * же цвета. Контраст текста к фону метки поверх --background-primary и --background-card — не ниже 4.5:1
+ * (проверено скриптом). Тон никогда не единственный признак:
+ * рядом всегда слово и иконка.
+ *
+ *   neutral  — черновик, пропущено
+ *   progress — на согласовании, ждёт
+ *   endorse  — на утверждении
+ *   warning  — возвращён
+ *   danger   — отклонён
+ *   success  — согласован, утверждён
+ *
+ * Палитра — вариант A «синий в работе», выбран командой: синий совпадает с акцентом MAX и линией таймлайна,
+ * янтарный остаётся за одним смыслом — «вернули, нужно действие автора».
+ */
+:root {
+  --status-neutral-fg: #4a4f5a;
+  --status-neutral-bg: #eceef2;
+  --status-progress-fg: #0a58c2;
+  --status-progress-bg: #e3eeff;
+  --status-endorse-fg: #6a3fcf;
+  --status-endorse-bg: #efe8ff;
+  --status-warning-fg: #8a5700;
+  --status-warning-bg: #fff1d1;
+  --status-danger-fg: #b3261e;
+  --status-danger-bg: #fde6e8;
+  --status-success-fg: #1b7a37;
+  --status-success-bg: #e1f5e6;
+
+  /* Значения от ИИ: одна иконка ✦ на всё приложение, спокойный фиолетовый. */
+  --ds-ai: #6a3fcf;
+}
+
+/*
+ * Тёмная тема — та же, что у MaxUI: ThemeSync ставит data-theme на <html> по useColorScheme. Пока
+ * атрибута нет (первый кадр), действует системная тема — как и у MaxUI по умолчанию.
+ */
+:root[data-theme='dark'] {
+  --status-neutral-fg: #c9ccd4;
+  --status-neutral-bg: rgba(201, 204, 212, 0.14);
+  --status-progress-fg: #8cc2ff;
+  --status-progress-bg: rgba(0, 122, 255, 0.2);
+  --status-endorse-fg: #cdb4ff;
+  --status-endorse-bg: rgba(164, 115, 255, 0.2);
+  --status-warning-fg: #ffcf66;
+  --status-warning-bg: rgba(255, 176, 32, 0.16);
+  --status-danger-fg: #ff9aa4;
+  --status-danger-bg: rgba(206, 66, 87, 0.22);
+  --status-success-fg: #7fe29a;
+  --status-success-bg: rgba(43, 198, 68, 0.16);
+
+  --ds-ai: #cdb4ff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --status-neutral-fg: #c9ccd4;
+    --status-neutral-bg: rgba(201, 204, 212, 0.14);
+    --status-progress-fg: #8cc2ff;
+    --status-progress-bg: rgba(0, 122, 255, 0.2);
+    --status-endorse-fg: #cdb4ff;
+    --status-endorse-bg: rgba(164, 115, 255, 0.2);
+    --status-warning-fg: #ffcf66;
+    --status-warning-bg: rgba(255, 176, 32, 0.16);
+    --status-danger-fg: #ff9aa4;
+    --status-danger-bg: rgba(206, 66, 87, 0.22);
+    --status-success-fg: #7fe29a;
+    --status-success-bg: rgba(43, 198, 68, 0.16);
+
+    --ds-ai: #cdb4ff;
+  }
+}

@@ -1,0 +1,149 @@
+spring:
+  application:
+    name: approval-backend
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/approval}
+    username: ${DB_USER:approval}
+    password: ${DB_PASSWORD:}
+    hikari:
+      # Retry на случай доли секунды рассинхрона даже при healthcheck на Postgres.
+      initialization-fail-timeout: 60000
+      connection-timeout: 10000
+
+  jpa:
+    # В проде схемой управляет Liquibase, Hibernate её не трогает.
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+
+  servlet:
+    multipart:
+      # С запасом над 10 МБ: файл больше лимита отклоняет DocumentFileValidator — с именем файла, а не общим «запрос
+      # слишком большой».
+      max-file-size: ${MAX_UPLOAD_SIZE:11MB}
+      # Версия документа - основной файл и до 10 приложений, до 30 МБ суммарно.
+      max-request-size: ${MAX_REQUEST_SIZE:32MB}
+
+  ai:
+    gigachat:
+      auth:
+        bearer:
+          # GIGACHAT_CREDENTIALS — Authorization key (Base64 client_id:client_secret)
+          # из личного кабинета. Имя одно на весь проект: .env.example, compose.yaml, README.
+          api-key: ${GIGACHAT_CREDENTIALS:}
+          client-id: ${GIGACHAT_CLIENT_ID:}
+        scope: ${GIGACHAT_SCOPE:GIGACHAT_API_PERS}
+      chat:
+        options:
+          model: ${GIGACHAT_MODEL:GigaChat-2-Max}
+          temperature: 0.0
+      embedding:
+        enabled: false
+      internal:
+        connect-timeout: 5s
+        read-timeout: ${AI_TIMEOUT_SECONDS:30}s
+
+server:
+  port: ${SERVER_PORT:8080}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Наружу только health - используется как healthcheck в compose.yaml.
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:}
+  secret-key: ${MINIO_SECRET_KEY:}
+  bucket: ${MINIO_BUCKET:documents}
+
+max:
+  bot:
+    # Токен выдаётся организаторами. В репозиторий не попадает никогда.
+    # Тем же секретом проверяется подпись данных запуска мини-приложения.
+    token: ${MAX_BOT_TOKEN:}
+    # false отключает реальные вызовы MAX Bot API целиком (приём обновлений и отправку) -
+    # уведомления только логируются. Для интеграционных тестов с фиктивным токеном
+    # (backend/src/test/README.md) и для временного отключения на стенде без удаления токена.
+    enabled: ${MAX_BOT_ENABLED:true}
+    # Официальный адрес с 19.07.2026. Сертификат Минцифры встроен в образ (Dockerfile).
+    # Токен передаётся только заголовком Authorization - параметр access_token отключён.
+    api-url: ${MAX_BOT_API_URL:https://platform-api2.max.ru}
+    # polling - для локальной разработки, webhook - для стенда сдачи.
+    # Документация MAX прямо называет long polling непригодным для продакшена,
+    # и одновременно с webhook он не работает.
+    update-mode: ${MAX_BOT_UPDATE_MODE:polling}
+    # Только для update-mode=webhook: публичный адрес backend, куда MAX шлёт обновления
+    # (бэкенд сам вызовет POST /subscriptions на этот адрес + /api/v1/bot/webhook при старте).
+    webhook-url: ${MAX_BOT_WEBHOOK_URL:}
+    # Секрет подписки: MAX присылает его в заголовке X-Max-Bot-Api-Secret каждого webhook-запроса,
+    # контроллер сверяет. Обязателен при update-mode=webhook: пустой секрет не пропускает проверку,
+    # а запрещает всё (fail closed) - контроллер отвечает 401, подписчик вовсе не подписывается.
+    webhook-secret: ${MAX_BOT_WEBHOOK_SECRET:}
+  mini-app:
+    url: ${MAX_MINI_APP_URL:}
+    # Данные запуска старше этого срока считаются просроченными,
+    # иначе перехваченная строка работает вечно.
+    init-data-max-age-seconds: ${MAX_INIT_DATA_MAX_AGE:86400}
+
+app:
+  download:
+    # Если секрет пуст, при запуске генерируется случайный ключ. Старые ссылки после
+    # перезапуска истекают, но backend остаётся доступен с пустым локальным .env.
+    secret: ${DOWNLOAD_LINK_SECRET:}
+    # Актуальный контракт v1.2: ссылка живёт 15 минут.
+    ttl-seconds: ${DOWNLOAD_LINK_TTL_SECONDS:900}
+  # Решение A: демо-компания и переключатель участника для сквозной проверки
+  # сценария одним человеком. В проде выключается. Порядок описан в README.
+  demo-mode: ${DEMO_MODE:false}
+  onboarding:
+    # Приглашение даёт право подать заявку, а не доступ - поэтому код короткий.
+    # Перебор кода ограничивается числом попыток на пользователя.
+    invite-code-length: 8
+    join-attempts-per-hour: ${JOIN_ATTEMPTS_PER_HOUR:10}
+    # Личная ссылка - предъявительский токен: вступает тот, кто откроет первым,
+    # без заявки. Риск ограничивается одноразовостью, сроком жизни, запретом
+    # выдавать ADMIN и уведомлением администратору о каждом вступлении.
+    personal-link-ttl-hours: ${PERSONAL_LINK_TTL_HOURS:72}
+    personal-link-token-bytes: 24
+  ai:
+    # Провайдер выбирается конфигурацией, а не правкой кода.
+    # Наш код зависит только от порта DocumentExtractor; под ним Spring AI
+    # ChatClient, за которым стоит активный ChatModel.
+    # Поддерживаемые значения: gigachat (по умолчанию), openai-compatible, ollama, none.
+    # Смена провайдера = замена стартера в pom.xml + эти настройки.
+    provider: ${AI_PROVIDER:gigachat}
+    # Решение E: деградация при недоступности модели.
+    # Детерминированные проверки правил работают всегда, без LLM. Сбой или тайм-аут модели
+    # всегда ведёт к ручному вводу полей — отдельного переключателя на это нет.
+    enabled: ${AI_ENABLED:true}
+    timeout-seconds: ${AI_TIMEOUT_SECONDS:30}
+  reminders:
+    # Раз в сутки напоминаем согласующему про шаг, который висит в PENDING дольше stuck-after-hours
+    # Для демо снизьте оба порога настройкой - показывать без ожидания суток
+    # не требует правки кода: например, stuck-after-hours=0 и cron на каждую минуту.
+    enabled: ${REMINDERS_ENABLED:true}
+    cron: "${REMINDERS_CRON:0 0 8 * * *}"
+    stuck-after-hours: ${REMINDERS_STUCK_AFTER_HOURS:48}
+    # Не чаще одного напоминания в сутки на шаг.
+    cooldown-hours: ${REMINDERS_COOLDOWN_HOURS:24}
+
+logging:
+  level:
+    ru.sibvibe.approval: ${LOG_LEVEL:INFO}

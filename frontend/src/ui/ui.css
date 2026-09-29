@@ -1,0 +1,1428 @@
+/*
+ * Базовые компоненты дизайн-системы (frontend/src/ui). Классы с префиксом ds-; экраны собираются только из
+ * компонентов этого модуля.
+ */
+
+/* ---------- Каркас страницы: шапка и контент прокручиваются, действия закреплены снизу ---------- */
+
+.ds-page {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.ds-page__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ds-page__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-m);
+  padding: var(--ds-space-m) var(--ds-gutter) var(--ds-space-l);
+  box-sizing: border-box;
+  min-height: 100%;
+}
+
+.ds-page__footer {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-xs);
+  padding: var(--ds-space-s) var(--ds-gutter) calc(var(--ds-space-s) + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--ds-border);
+  background: var(--background-primary);
+}
+
+.ds-page__center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ds-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-2xs);
+}
+
+.ds-header__row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ds-space-s);
+}
+
+.ds-header__title.ds-header__title--long {
+  font-size: var(--ds-text-l);
+  line-height: 26px;
+}
+
+.ds-header__title {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--ds-text-xl);
+  line-height: 30px;
+  font-weight: 700;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.ds-header__subtitle {
+  margin: 0;
+  font-size: var(--ds-text-s);
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+
+.ds-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--ds-tap);
+  margin: calc(-1 * var(--ds-space-s)) 0 calc(-1 * var(--ds-space-xs)) calc(-1 * var(--ds-space-xs));
+  padding: 0 var(--ds-space-xs);
+  border: none;
+  border-radius: var(--ds-radius-s);
+  background: transparent;
+  color: var(--text-themed);
+  font: inherit;
+  font-size: var(--ds-text-m);
+  cursor: pointer;
+}
+
+/* ---------- Текст ---------- */
+
+.ds-text-secondary {
+  margin: 0;
+  font-size: var(--ds-text-s);
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+
+.ds-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-xs);
+}
+
+.ds-section__title {
+  margin: 0;
+  font-size: var(--ds-text-m);
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ds-section__hint {
+  margin: -4px 0 0;
+  font-size: var(--ds-text-xs);
+  line-height: 18px;
+  color: var(--text-tertiary);
+}
+
+/* ---------- Кнопки (принципы 4–6): заливка, высота 48, подпись переносится, а не обрезается ---------- */
+
+.ds-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ds-space-xs);
+  min-height: var(--ds-control);
+  padding: 10px var(--ds-space-m);
+  border: none;
+  border-radius: var(--ds-radius-m);
+  font: inherit;
+  font-size: var(--ds-text-m);
+  line-height: 20px;
+  font-weight: 600;
+  text-align: center;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  transition: filter 0.12s ease, opacity 0.12s ease;
+}
+
+.ds-button:active:not(:disabled) {
+  filter: brightness(0.92);
+}
+
+.ds-button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.ds-button--stretched {
+  width: 100%;
+}
+
+.ds-button--compact {
+  min-height: var(--ds-tap);
+  padding: 8px var(--ds-space-s);
+  font-size: var(--ds-text-s);
+}
+
+.ds-button--primary {
+  background: var(--button-primary);
+  color: #fff;
+}
+
+.ds-button--secondary {
+  background: var(--button-secondary);
+  color: var(--text-primary);
+}
+
+/* «Тихая опасная»: не яркая красная заливка, а красный текст на вторичном фоне. */
+.ds-button--danger {
+  background: var(--button-secondary);
+  color: var(--status-danger-fg);
+}
+
+/* Негромкая: обводка без заливки — всё ещё явно кнопка, но не спорит с главной. */
+.ds-button--ghost {
+  background: transparent;
+  color: var(--text-primary);
+  box-shadow: inset 0 0 0 1px var(--ds-border);
+}
+
+.ds-button__spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: ds-spin 0.8s linear infinite;
+}
+
+@keyframes ds-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ds-button-row {
+  display: flex;
+  gap: var(--ds-space-xs);
+}
+
+.ds-button-row > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.ds-icon-button {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ds-tap);
+  height: var(--ds-tap);
+  padding: 0;
+  border: none;
+  border-radius: var(--ds-radius-pill);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ds-icon-button:active {
+  background: var(--states-background-pressed-transparent, rgba(127, 127, 127, 0.16));
+}
+
+/* ---------- Карточки, строки, плитки ---------- */
+
+.ds-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-xs);
+  padding: var(--ds-space-m);
+  border-radius: var(--ds-radius-m);
+  background: var(--ds-surface);
+  box-sizing: border-box;
+}
+
+.ds-list {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--ds-radius-m);
+  background: var(--ds-surface);
+  overflow: hidden;
+}
+
+.ds-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-s);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--ds-space-s) var(--ds-space-m);
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.ds-row + .ds-row {
+  border-top: 1px solid var(--divider-secondary);
+}
+
+button.ds-row {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button.ds-row:active {
+  background: var(--states-background-pressed-transparent, rgba(127, 127, 127, 0.12));
+}
+
+.ds-row__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ds-row__title {
+  font-size: var(--ds-text-m);
+  line-height: 22px;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.ds-row__subtitle {
+  font-size: var(--ds-text-xs);
+  line-height: 18px;
+  color: var(--text-secondary);
+  overflow-wrap: anywhere;
+}
+
+.ds-row__after {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-xs);
+}
+
+.ds-row__chevron {
+  flex: none;
+  color: var(--text-tertiary);
+}
+
+.ds-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--ds-space-xs);
+}
+
+.ds-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ds-space-xs);
+  min-height: 132px;
+  padding: var(--ds-space-m) var(--ds-space-s) var(--ds-space-s) var(--ds-space-m);
+  border: 1px solid transparent;
+  border-radius: var(--ds-radius-l);
+  background: var(--ds-surface);
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ds-tile:active {
+  filter: brightness(0.94);
+}
+
+.ds-tile--attention {
+  border-color: var(--ds-accent);
+}
+
+.ds-tile__icon {
+  display: inline-flex;
+  color: var(--text-secondary);
+}
+
+.ds-tile--attention .ds-tile__icon {
+  color: var(--ds-accent);
+}
+
+.ds-tile__title {
+  font-size: var(--ds-text-m);
+  line-height: 20px;
+  font-weight: 600;
+}
+
+.ds-tile__hint {
+  font-size: var(--ds-text-xs);
+  line-height: 17px;
+  color: var(--text-secondary);
+}
+
+.ds-tile__count {
+  position: absolute;
+  top: var(--ds-space-s);
+  right: var(--ds-space-s);
+}
+
+/* ---------- Метки и счётчики ---------- */
+
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px 3px 6px;
+  border-radius: var(--ds-radius-pill);
+  font-size: var(--ds-text-xs);
+  line-height: 18px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.ds-badge--neutral { background: var(--status-neutral-bg); color: var(--status-neutral-fg); }
+.ds-badge--progress { background: var(--status-progress-bg); color: var(--status-progress-fg); }
+.ds-badge--endorse { background: var(--status-endorse-bg); color: var(--status-endorse-fg); }
+.ds-badge--warning { background: var(--status-warning-bg); color: var(--status-warning-fg); }
+.ds-badge--danger { background: var(--status-danger-bg); color: var(--status-danger-fg); }
+.ds-badge--success { background: var(--status-success-bg); color: var(--status-success-fg); }
+
+.ds-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: var(--ds-radius-pill);
+  background: var(--ds-surface-raised);
+  color: var(--text-primary);
+  font-size: var(--ds-text-xs);
+  font-weight: 700;
+  box-sizing: border-box;
+}
+
+.ds-count--accent {
+  background: var(--ds-accent);
+  color: #fff;
+}
+
+/* ---------- Чипы-фильтры ---------- */
+
+.ds-chips {
+  display: flex;
+  gap: var(--ds-space-xs);
+  overflow-x: auto;
+  margin: 0 calc(-1 * var(--ds-gutter));
+  padding: 0 var(--ds-gutter) 2px;
+  scrollbar-width: none;
+}
+
+.ds-chips--wrap {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.ds-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.ds-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 14px;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-pill);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--ds-text-s);
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ds-chip[aria-pressed='true'] {
+  border-color: var(--ds-accent);
+  background: var(--status-progress-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ---------- Нижняя панель ---------- */
+
+/*
+ * По видимой высоте (--app-height), а не по окну: в веб-MAX окно мини-приложения бывает выше видимой области, и кнопки
+ * панели уходили бы за край.
+ */
+.ds-sheet {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--app-height, 100%);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+}
+
+.ds-sheet__overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--background-overlay, rgba(0, 0, 0, 0.5));
+}
+
+.ds-sheet__panel {
+  position: relative;
+  width: 100%;
+  max-width: 560px;
+  max-height: 88%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  border-top-left-radius: var(--ds-radius-l);
+  border-top-right-radius: var(--ds-radius-l);
+  background: var(--background-primary);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.ds-sheet__head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-xs);
+  padding: var(--ds-space-xs) var(--ds-space-xs) 0 var(--ds-gutter);
+}
+
+.ds-sheet__title {
+  flex: 1;
+  margin: 0;
+  padding: var(--ds-space-s) 0;
+  font-size: var(--ds-text-l);
+  line-height: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Содержимое панели прокручивается, а не сжимается: список с overflow: hidden иначе ужимался ниже своей высоты,
+   и строки наезжали друг на друга на узком экране («Какие файлы подходят»). */
+.ds-sheet__body > * {
+  flex-shrink: 0;
+}
+
+.ds-sheet__body {
+  overscroll-behavior: contain;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-m);
+  padding: var(--ds-space-xs) var(--ds-gutter) calc(var(--ds-space-l) + env(safe-area-inset-bottom, 0px));
+}
+
+.ds-option {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-s);
+  width: 100%;
+  min-height: 52px;
+  padding: var(--ds-space-xs) var(--ds-space-s);
+  border: none;
+  border-radius: var(--ds-radius-m);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ds-option:active:not(:disabled) {
+  background: var(--ds-surface);
+}
+
+.ds-option:disabled {
+  cursor: default;
+}
+
+.ds-option:disabled .ds-row__title {
+  color: var(--text-tertiary);
+}
+
+.ds-option[aria-selected='true'] {
+  background: var(--ds-surface);
+}
+
+.ds-option__check {
+  flex: none;
+  color: var(--ds-accent);
+}
+
+/* ---------- Поля ввода ---------- */
+
+.ds-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ds-search__icon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+/* У type=search браузер рисует свой крестик — рядом с нашим «Очистить» их было два. */
+.ds-search__input::-webkit-search-cancel-button,
+.ds-search__input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.ds-search__input {
+  width: 100%;
+  min-height: var(--ds-tap);
+  padding: 10px 40px 10px 40px;
+  border: 1px solid transparent;
+  border-radius: var(--ds-radius-m);
+  background: var(--ds-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--ds-text-m);
+  box-sizing: border-box;
+  outline: none;
+}
+
+.ds-search__input:focus {
+  border-color: var(--ds-accent);
+}
+
+.ds-search__clear {
+  position: absolute;
+  right: 0;
+}
+
+.ds-select {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-xs);
+  width: 100%;
+  min-height: var(--ds-control);
+  padding: 10px var(--ds-space-s) 10px var(--ds-space-m);
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-m);
+  background: var(--ds-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--ds-text-m);
+  text-align: left;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.ds-select--placeholder .ds-select__value {
+  color: var(--text-tertiary);
+}
+
+.ds-select--invalid {
+  border-color: var(--text-negative);
+}
+
+.ds-select__value {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.ds-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ds-field__label {
+  font-size: var(--ds-text-s);
+  color: var(--text-secondary);
+}
+
+/* ---------- Состояния ---------- */
+
+.ds-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ds-space-s);
+  padding: var(--ds-space-xl) var(--ds-space-l);
+  text-align: center;
+}
+
+.ds-state__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--ds-surface);
+  color: var(--text-tertiary);
+}
+
+.ds-state__title {
+  margin: 0;
+  font-size: var(--ds-text-m);
+  line-height: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ds-state__text {
+  margin: 0;
+  max-width: 320px;
+  font-size: var(--ds-text-s);
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+
+.ds-loading {
+  display: flex;
+  justify-content: center;
+  padding: var(--ds-space-l);
+}
+
+.ds-inline-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ds-space-xs);
+  margin: 0;
+  font-size: var(--ds-text-s);
+  line-height: 20px;
+  color: var(--text-negative);
+}
+
+.ds-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ds-space-xs);
+  padding: var(--ds-space-s);
+  border-radius: var(--ds-radius-m);
+  font-size: var(--ds-text-s);
+  line-height: 20px;
+}
+
+.ds-notice--info {
+  background: var(--ds-surface);
+  color: var(--text-secondary);
+}
+
+.ds-notice--warning {
+  background: var(--status-warning-bg);
+  color: var(--status-warning-fg);
+}
+
+.ds-notice--danger {
+  background: var(--status-danger-bg);
+  color: var(--status-danger-fg);
+}
+
+.ds-notice--success {
+  background: var(--status-success-bg);
+  color: var(--status-success-fg);
+}
+
+.ds-notice > svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+/* ---------- Тост ---------- */
+
+.ds-toast {
+  position: fixed;
+  left: 50%;
+  /* Над закреплёнными кнопками экрана (их высоту меряет Page) — от низа видимой области, а не окна. */
+  top: calc(var(--app-height, 100vh) - var(--ds-footer-height, 0px) - var(--ds-space-m));
+  transform: translate(-50%, -100%);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-xs);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: var(--ds-space-s) var(--ds-space-m);
+  border-radius: var(--ds-radius-m);
+  background: var(--text-primary);
+  color: var(--background-primary);
+  font-size: var(--ds-text-s);
+  line-height: 20px;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-sizing: border-box;
+}
+
+/* Имена файлов и длинные слова без пробелов переносятся, а не распирают карточку. */
+.ds-row__title,
+.ds-row__subtitle,
+.ds-filedrop__file,
+.ds-card {
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Значок ИИ ---------- */
+
+.ds-ai {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ds-ai);
+}
+
+/* Приглушённая пометка-кнопка («вне шаблонов», DOC-7): мелкая, но зона нажатия — не меньше 44 px по высоте. */
+.ds-tag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border: 1px solid var(--ds-border);
+  border-radius: var(--ds-radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--ds-text-xs);
+  line-height: 18px;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ds-tag::after {
+  content: '';
+  position: absolute;
+  inset: -12px -4px;
+}
+
+/* ---------- Плашка демо: ровный небольшой отступ без safe-area — шапку рисует сам MAX ---------- */
+
+.ds-demo-bar {
+  flex: none;
+  padding: var(--ds-space-xs) var(--ds-gutter);
+  background: var(--background-primary);
+  border-bottom: 1px solid var(--ds-border);
+}
+
+.ds-demo-bar__button {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-xs);
+  width: 100%;
+  min-height: 36px;
+  padding: 6px var(--ds-space-s);
+  border: 1px solid var(--status-endorse-bg);
+  border-radius: var(--ds-radius-pill);
+  background: var(--status-endorse-bg);
+  color: var(--status-endorse-fg);
+  font: inherit;
+  font-size: var(--ds-text-xs);
+  line-height: 18px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ds-demo-bar__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.ds-chip:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+
+/* ---------- Перетаскивание: ручка, призрак, зоны сброса ---------- */
+
+.ds-drag-handle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ds-tap);
+  height: var(--ds-tap);
+  margin: -8px 0 -8px -12px;
+  color: var(--text-tertiary);
+  cursor: grab;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.ds-drag-ghost {
+  position: fixed;
+  z-index: 400;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-xs);
+  max-width: 260px;
+  padding: var(--ds-space-s) var(--ds-space-m);
+  border-radius: var(--ds-radius-m);
+  background: var(--ds-surface-raised);
+  color: var(--text-primary);
+  font-size: var(--ds-text-s);
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transform: translate(-24px, -50%);
+}
+
+.ds-drop-target {
+  transition: box-shadow 0.12s ease, background 0.12s ease;
+}
+
+.ds-drop-target[data-hover='true'] {
+  box-shadow: inset 0 0 0 2px var(--ds-accent);
+  background: var(--status-progress-bg);
+}
+
+.ds-dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ds-space-xs);
+  width: 100%;
+  min-height: 56px;
+  padding: var(--ds-space-s);
+  border: 1.5px dashed var(--icon-mute);
+  border-radius: var(--ds-radius-m);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--ds-text-s);
+  font-weight: 600;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.ds-dropzone[data-hover='true'] {
+  border-color: var(--ds-accent);
+  background: var(--status-progress-bg);
+  color: var(--text-primary);
+}
+
+/* ---------- Таймлайн отслеживания ---------- */
+
+.ds-tl {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ds-tl__item {
+  display: flex;
+  gap: var(--ds-space-s);
+}
+
+.ds-tl__rail {
+  flex: none;
+  width: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ds-tl__dot {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-sizing: border-box;
+  color: #fff;
+}
+
+.ds-tl__dot--future {
+  width: 12px;
+  height: 12px;
+  margin: 4px 0;
+  border: 2px solid var(--icon-mute);
+  background: var(--background-primary);
+}
+
+.ds-tl__dot--current {
+  width: 24px;
+  height: 24px;
+  border: 2px solid;
+  background: var(--background-primary);
+}
+
+.ds-tl__line {
+  flex: 1;
+  min-height: 16px;
+  width: 0;
+  margin: 2px 0;
+}
+
+.ds-tl__line--done {
+  border-left: 2px solid var(--ds-accent);
+}
+
+.ds-tl__line--future {
+  border-left: 2px dashed var(--icon-mute);
+}
+
+.ds-tl__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-space-xs);
+  padding-bottom: var(--ds-space-m);
+}
+
+.ds-tl__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px var(--ds-space-xs);
+  min-height: 20px;
+}
+
+.ds-tl__title {
+  font-size: var(--ds-text-m);
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ds-tl__item--future .ds-tl__title,
+.ds-tl__item--future .ds-tl__meta {
+  color: var(--text-tertiary);
+}
+
+.ds-tl__item--current .ds-tl__title {
+  font-size: var(--ds-text-l);
+  line-height: 24px;
+}
+
+.ds-tl__here {
+  padding: 2px 8px;
+  border-radius: var(--ds-radius-pill);
+  background: var(--status-progress-bg);
+  color: var(--status-progress-fg);
+  font-size: var(--ds-text-xs);
+  font-weight: 600;
+}
+
+.ds-tl__meta {
+  margin-top: -4px;
+  font-size: var(--ds-text-xs);
+  line-height: 18px;
+  color: var(--text-secondary);
+}
+
+.ds-tl__person {
+  padding: var(--ds-space-s);
+  border-radius: var(--ds-radius-m);
+  background: var(--ds-surface);
+}
+
+.ds-tl__item--future .ds-tl__person {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--divider-secondary);
+}
+
+.ds-tl__comment {
+  margin: var(--ds-space-xs) 0 0;
+  font-size: var(--ds-text-s);
+  line-height: 20px;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+/* Кнопка-ссылка акцентным цветом со стрелкой: серый текст не читался как нажимаемый. */
+.ds-tl__toggle {
+  display: flex;
+  /* По центру высоты, как у обычной кнопки: сдвиг -12px рассчитан на это — иначе текст уезжал к строке выше. */
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-height: var(--ds-tap);
+  margin-top: -12px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-themed);
+  font: inherit;
+  font-size: var(--ds-text-s);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Показать/скрыть список — та же кнопка-ссылка, что и в таймлайне, но без сдвига под точку. */
+.ds-link-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: var(--ds-tap);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-themed);
+  font: inherit;
+  font-size: var(--ds-text-s);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ds-tl__toggle svg {
+  flex: none;
+}
+
+.ds-tl__toggle-count {
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* ---------- Зона загрузки ---------- */
+
+.ds-filedrop {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ds-space-s);
+  padding: var(--ds-space-l) var(--ds-space-m) var(--ds-space-m);
+  border: 1.5px dashed var(--icon-mute);
+  border-radius: var(--ds-radius-l);
+  background: var(--ds-surface);
+  box-sizing: border-box;
+}
+
+.ds-filedrop--filled {
+  border-style: solid;
+  border-color: var(--ds-border);
+}
+
+.ds-filedrop--error {
+  border-style: solid;
+  border-color: var(--text-negative);
+}
+
+.ds-filedrop__help {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--ds-tap);
+  height: var(--ds-tap);
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.ds-filedrop__pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ds-space-xs);
+  width: 100%;
+  min-height: 120px;
+  justify-content: center;
+  padding: 0 var(--ds-space-l);
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.ds-filedrop__icon {
+  display: inline-flex;
+  color: var(--ds-accent);
+}
+
+.ds-filedrop--error .ds-filedrop__icon {
+  color: var(--text-negative);
+}
+
+.ds-filedrop__title {
+  font-size: var(--ds-text-m);
+  line-height: 22px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.ds-filedrop__file {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-s);
+  width: 100%;
+  padding-right: var(--ds-space-l);
+  box-sizing: border-box;
+}
+
+.ds-filedrop__error {
+  margin: 0;
+  font-size: var(--ds-text-s);
+  line-height: 20px;
+  color: var(--text-negative);
+  text-align: center;
+}
+
+.ds-filedrop__note > svg {
+  flex: none;
+  margin-top: 1px;
+}
+
+/* ---------- Степпер ---------- */
+
+.ds-stepper {
+  display: flex;
+  gap: var(--ds-space-xs);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ds-stepper__step {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 3px solid var(--ds-border);
+  color: var(--text-tertiary);
+  font-size: var(--ds-text-xs);
+}
+
+.ds-stepper__step--done {
+  border-top-color: var(--ds-accent);
+  color: var(--text-secondary);
+}
+
+.ds-stepper__step--current {
+  border-top-color: var(--ds-accent);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.ds-stepper__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ds-surface);
+  font-size: 12px;
+}
+
+.ds-stepper__step--current .ds-stepper__num,
+.ds-stepper__step--done .ds-stepper__num {
+  background: var(--ds-accent);
+  color: #fff;
+}
+
+.ds-stepper__label {
+  overflow-wrap: anywhere;
+}
+
+/*
+ * Поля ввода max-ui: фон многострочного поля в тёмной теме совпадал с фоном карточки, и поле «Текст» служебной записки
+ * было не видно. Тонкая рамка токеном — у всех полей одинаково; фокус — акцентный цвет.
+ */
+.app-root [class*='Textarea_mode_'],
+.app-root [class*='Input_mode_'] {
+  box-shadow: inset 0 0 0 1px var(--ds-border);
+}
+
+.app-root [class*='Textarea_mode_']:focus-within,
+.app-root [class*='Input_mode_']:focus-within {
+  box-shadow: inset 0 0 0 1.5px var(--ds-accent);
+}
+
+/* ---------- Инициалы в списках людей ---------- */
+
+.ds-initials {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(127, 127, 127, 0.18);
+  background: color-mix(in srgb, var(--ds-accent) 16%, transparent);
+  color: var(--text-themed);
+  font-size: var(--ds-text-xs);
+  font-weight: 600;
+}
+
+/* ---------- Легенда ✦ — кнопка «Что это?» ---------- */
+
+.ds-ai-legend {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+  width: 100%;
+  min-height: var(--ds-tap);
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: var(--ds-text-s);
+  text-align: left;
+  cursor: pointer;
+}
+
+.ds-ai-legend__text {
+  color: var(--text-secondary);
+}
+
+.ds-ai-legend__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  color: var(--text-themed);
+  font-weight: 600;
+}
+
+/* ---------- Замечание проверки ---------- */
+
+.ds-issue {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border-radius: var(--ds-radius-m);
+  background: var(--background-primary);
+  overflow-wrap: anywhere;
+}
+
+.ds-issue__quote {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: var(--ds-radius-s);
+  background: var(--ds-surface);
+  color: var(--text-secondary);
+}
+
+/* Мельче текстом, но зона нажатия та же 44 px: отрицательные поля съедают лишнюю высоту в карточке. */
+.ds-link-toggle--small {
+  margin: -6px 0;
+  font-size: var(--ds-text-xs);
+}
+
+/* ---------- Приложения к документу ---------- */
+
+.ds-attachment__icon {
+  flex: none;
+  display: inline-flex;
+  color: var(--ds-accent);
+}
+
+.ds-filedrop__pick:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.ds-attachment--removed {
+  color: var(--text-tertiary);
+  font-weight: 400;
+}
+
+/* ---------- Поле с замечанием при правке ---------- */
+
+/* Обводка цвета важности: у поля видно, что с ним не так, не листая к списку замечаний. У Input из max-ui рамку
+   рисует label внутри контейнера (контейнер включает и подсказку), у Textarea — его обёртка (класс ставится на неё). */
+.ds-input-issue.ds-input-issue--danger > label[class], .ds-textarea-issue.ds-textarea-issue--danger[class] { box-shadow: inset 0 0 0 1.5px var(--status-danger-fg); }
+.ds-input-issue.ds-input-issue--warning > label[class], .ds-textarea-issue.ds-textarea-issue--warning[class] { box-shadow: inset 0 0 0 1.5px var(--status-warning-fg); }
+.ds-input-issue.ds-input-issue--neutral > label[class], .ds-textarea-issue.ds-textarea-issue--neutral[class] { box-shadow: inset 0 0 0 1.5px var(--icon-mute); }
+
+.ds-field-issue {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: var(--ds-text-xs);
+  line-height: 18px;
+}
+
+.ds-field-issue svg { flex: none; margin-top: 2px; }
+.ds-field-issue--danger { color: var(--status-danger-fg); }
+.ds-field-issue--warning { color: var(--status-warning-fg); }
+.ds-field-issue--neutral { color: var(--text-secondary); }
+
+/* ---------- Раскрывающийся блок (<details>) ---------- */
+
+/* Нативный треугольник ▶ выбивался из дизайн-системы: вместо него шеврон, как у «Показать ещё». */
+.ds-disclosure > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: var(--ds-tap);
+  margin: -8px 0;
+  font-weight: 600;
+  cursor: pointer;
+  list-style: none;
+}
+.ds-disclosure > summary::-webkit-details-marker { display: none; }
+.ds-disclosure > summary > .ds-disclosure__chevron { display: inline-flex; color: var(--icon-mute); transition: transform 0.15s; }
+.ds-disclosure[open] > summary > .ds-disclosure__chevron { transform: rotate(180deg); }
+
+/* ---------- Код компании ---------- */
+
+.ds-invite-code {
+  font-size: var(--ds-text-xl);
+  line-height: 32px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--text-primary);
+}
+
+.ds-invite-link {
+  font-size: var(--ds-text-xs);
+  line-height: 18px;
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}
+
+.ds-request__who {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-space-s);
+  margin-bottom: var(--ds-space-xs);
+}

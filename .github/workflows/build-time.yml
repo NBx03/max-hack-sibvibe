@@ -1,0 +1,42 @@
+name: Build time
+
+# Лимит кейса: сборка в Docker не дольше 5 минут без учёта загрузки базовых образов.
+# Запускается, когда меняются зависимости или Docker-конфигурация, и вручную.
+# Сеть раннера GitHub не равна сети проверяющего, поэтому порог предупреждения
+# ниже лимита: цифра здесь — сигнал о тренде, а не точный прогноз.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - backend/pom.xml
+      - frontend/package.json
+      - frontend/package-lock.json
+      - '**/Dockerfile'
+      - compose.yaml
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Фиктивное окружение для compose
+        run: |
+          printf 'DB_PASSWORD=ci\nMINIO_ACCESS_KEY=ciaccess\nMINIO_SECRET_KEY=cisecret123\n' > .env
+      - name: Загрузка базовых образов (не входит в лимит)
+        run: |
+          docker pull public.ecr.aws/docker/library/maven:3.9-eclipse-temurin-21@sha256:99e61abcff91a9b1333463bd8451fb18495d6eba9250ac66a338b518f8278320
+          docker pull public.ecr.aws/docker/library/eclipse-temurin:21-jre-alpine@sha256:51ab5e3302e7141ce665ca3ea85e8b5cd648eafbc3c0c90dd79d6537684e4555
+          docker pull public.ecr.aws/docker/library/node:22-alpine@sha256:0a7108bf6c7bf5de370ffb1a3ed6be93d405b43ff159f681a8d18c0e2bc2e402
+          docker pull public.ecr.aws/docker/library/nginx:1.27-alpine@sha256:65645c7bb6a0661892a8b03b89d0743208a18dd2f3f17a54ef4b76fb8e2f2a10
+      - name: Полная сборка без кэша
+        run: |
+          start=$(date +%s)
+          docker compose build --no-cache
+          took=$(( $(date +%s) - start ))
+          echo "Сборка: ${took} с (лимит 300)" | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$took" -gt 300 ]; then
+            echo "::error::Сборка ${took} с — больше лимита кейса 300 с"
+            exit 1
+          elif [ "$took" -gt 240 ]; then
+            echo "::warning::Сборка ${took} с — запас до лимита меньше минуты"
+          fi

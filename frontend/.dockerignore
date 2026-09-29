@@ -1,0 +1,12 @@
+# node_modules НЕ копируется в образ: зависимости ставятся через npm ci
+# из package-lock.json на отдельном кэшируемом слое.
+node_modules/
+dist/
+.git
+.gitignore
+.env
+.env.*
+*.md
+.idea/
+.vscode/
+.vite/

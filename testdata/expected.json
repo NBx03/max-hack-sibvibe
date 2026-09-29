@@ -1,0 +1,274 @@
+{
+  "comment": "Ожидаемый результат для каждого тестового документа. fields — результат идеального извлечения полей; normalized — поля, чьё значение приведено к нужной форме (падеж) и дословно в тексте отсутствует; issues — правила из rules.json, которые обязаны сработать, в порядке правил. referenceDate — «сегодня» для DATE_NOT_FUTURE.",
+  "referenceDate": "2026-09-21",
+  "documents": [
+    {
+      "file": "documents/01_memo_ok.docx",
+      "type": "OFFICIAL_MEMO",
+      "about": "Служебная записка без замечаний.",
+      "fields": {
+        "addressee": "Генеральному директору ООО «Демо-компания» Орлову В.П.",
+        "author_name": "А.С. Петрова",
+        "doc_date": "15.09.2026",
+        "reg_number": "СЗ-117",
+        "subject": "О закупке ноутбуков для отдела продаж",
+        "body": "В связи с расширением отдела продаж с 1 октября 2026 года прошу согласовать закупку пяти ноутбуков для новых сотрудников. Ориентировочная стоимость — 450 000 рублей, средства предусмотрены бюджетом отдела на IV квартал.",
+        "signer_position": "Руководитель отдела продаж",
+        "signer_name": "А.С. Петрова"
+      },
+      "normalized": [],
+      "issues": []
+    },
+    {
+      "file": "documents/02_memo_errors.docx",
+      "type": "OFFICIAL_MEMO",
+      "about": "Нет адресата, дата в будущем, заголовок без «О», в подписи полное имя.",
+      "fields": {
+        "author_name": "Анна Петрова",
+        "doc_date": "31.12.2099",
+        "reg_number": "СЗ-118",
+        "subject": "Закупка ноутбуков для отдела продаж",
+        "body": "В связи с расширением отдела продаж с 1 октября 2026 года прошу согласовать закупку пяти ноутбуков для новых сотрудников. Ориентировочная стоимость — 450 000 рублей, средства предусмотрены бюджетом отдела на IV квартал.",
+        "signer_position": "Руководитель отдела продаж",
+        "signer_name": "Анна Петрова"
+      },
+      "normalized": [],
+      "issues": [
+        "M1",
+        "M4",
+        "M6",
+        "M10"
+      ]
+    },
+    {
+      "file": "documents/03_memo_word_date.pdf",
+      "type": "OFFICIAL_MEMO",
+      "about": "PDF. Дата без года — не понять, о каком годе речь (словесно-цифровой способ с годом ГОСТ допускает). Номер без индекса, короткий текст, в подписи нет должности.",
+      "fields": {
+        "addressee": "Главному бухгалтеру ООО «Демо-компания» Соколовой Е.Н.",
+        "author_name": "Д.В. Смирнов",
+        "doc_date": "15 сентября",
+        "reg_number": "119",
+        "subject": "О возмещении командировочных расходов",
+        "body": "Прошу возместить расходы.",
+        "signer_name": "Д.В. Смирнов"
+      },
+      "normalized": [],
+      "issues": [
+        "M3",
+        "M5",
+        "M8",
+        "M9"
+      ]
+    },
+    {
+      "file": "documents/04_vacation_ok.docx",
+      "type": "VACATION_REQUEST",
+      "about": "Заявление на отпуск без замечаний.",
+      "fields": {
+        "employee_name": "Кузнецов Игорь Олегович",
+        "employee_position": "менеджер по продажам",
+        "vacation_type": "ежегодный оплачиваемый",
+        "start_date": "01.10.2026",
+        "days_count": "14"
+      },
+      "normalized": [
+        "employee_name",
+        "employee_position"
+      ],
+      "issues": []
+    },
+    {
+      "file": "documents/05_vacation_errors.pdf",
+      "type": "VACATION_REQUEST",
+      "about": "PDF. Учебный отпуск, дата начала без года, дни словами.",
+      "fields": {
+        "employee_name": "Кузнецов Игорь Олегович",
+        "employee_position": "менеджер по продажам",
+        "vacation_type": "учебный",
+        "start_date": "1 октября",
+        "days_count": "двадцать восемь"
+      },
+      "normalized": [
+        "employee_name",
+        "employee_position"
+      ],
+      "issues": [
+        "V2",
+        "V4",
+        "V5"
+      ]
+    },
+    {
+      "file": "documents/06_support_ok.pdf",
+      "type": "SUPPORT_MEASURE_REQUEST",
+      "about": "PDF. Заявка на меру поддержки без замечаний.",
+      "fields": {
+        "applicant_name": "ООО «Демо-компания»",
+        "applicant_inn": "0012345678",
+        "smb_category": "малое предприятие",
+        "support_type": "консультационная поддержка по вопросам бухгалтерского учёта"
+      },
+      "normalized": [],
+      "issues": []
+    },
+    {
+      "file": "documents/07_support_errors.docx",
+      "type": "SUPPORT_MEASURE_REQUEST",
+      "about": "Не указан вид поддержки, ИНН из 9 цифр, форма вместо категории МСП.",
+      "fields": {
+        "applicant_name": "ООО «Демо-компания»",
+        "applicant_inn": "001234567",
+        "smb_category": "индивидуальный предприниматель"
+      },
+      "normalized": [],
+      "issues": [
+        "S2",
+        "S4",
+        "S6"
+      ]
+    },
+    {
+      "file": "documents/08_memo_missing.pdf",
+      "type": "OFFICIAL_MEMO",
+      "about": "PDF. Нет даты и нет текста записки: пустые поля ловят только правила «Заполнено».",
+      "fields": {
+        "addressee": "Генеральному директору ООО «Демо-компания» Орлову В.П.",
+        "author_name": "А.С. Петрова",
+        "reg_number": "СЗ-120",
+        "subject": "О закупке ноутбуков для отдела продаж",
+        "signer_position": "Руководитель отдела продаж",
+        "signer_name": "А.С. Петрова"
+      },
+      "normalized": [],
+      "issues": [
+        "M2",
+        "M7"
+      ]
+    },
+    {
+      "file": "documents/09_vacation_missing.docx",
+      "type": "VACATION_REQUEST",
+      "about": "Не указаны сотрудник и дата начала отпуска.",
+      "fields": {
+        "vacation_type": "ежегодный оплачиваемый",
+        "days_count": "14"
+      },
+      "normalized": [],
+      "issues": [
+        "V1",
+        "V3"
+      ]
+    },
+    {
+      "file": "documents/10_support_missing.pdf",
+      "type": "SUPPORT_MEASURE_REQUEST",
+      "about": "PDF. Не указаны заявитель, ИНН и категория МСП: пустые поля ловят только правила «Заполнено».",
+      "fields": {
+        "support_type": "консультационная поддержка по вопросам бухгалтерского учёта"
+      },
+      "normalized": [],
+      "issues": [
+        "S1",
+        "S3",
+        "S5"
+      ]
+    },
+    {
+      "file": "documents/11_order_other.docx",
+      "type": "GENERIC",
+      "about": "Другой документ — приказ: общая проверка реквизитов. Дата словесно-цифровым способом, все реквизиты на месте — замечаний нет.",
+      "fields": {
+        "doc_kind": "ПРИКАЗ",
+        "doc_date": "«18» сентября 2026 г.",
+        "reg_number": "42-П",
+        "subject": "О проведении инвентаризации",
+        "signer_position": "Генеральный директор",
+        "signer_name": "В.П. Орлов"
+      },
+      "normalized": [],
+      "issues": []
+    },
+    {
+      "file": "documents/12_act_errors.pdf",
+      "type": "GENERIC",
+      "about": "PDF. Другой документ — акт без даты, номера и подписи с расшифровкой: только предупреждения.",
+      "fields": {
+        "doc_kind": "АКТ",
+        "subject": "приёма-передачи оборудования"
+      },
+      "normalized": [],
+      "issues": [
+        "G1",
+        "G4",
+        "G5"
+      ]
+    },
+    {
+      "file": "documents/13_letter_errors.docx",
+      "type": "GENERIC",
+      "about": "Другой документ — письмо: дата без числа не читается, заголовка нет.",
+      "fields": {
+        "doc_date": "сентябрь 2026 г.",
+        "reg_number": "57",
+        "signer_position": "Руководитель отдела продаж",
+        "signer_name": "А.С. Петрова"
+      },
+      "normalized": [],
+      "issues": [
+        "G2",
+        "G3"
+      ]
+    },
+    {
+      "file": "documents/14_trip_ok.docx",
+      "type": "BUSINESS_TRIP_REQUEST",
+      "about": "Заявка на командировку без замечаний.",
+      "fields": {
+        "employee_name": "Кузнецов Игорь Олегович",
+        "destination": "г. Казань",
+        "purpose": "участие в выставке «Промэкспо»",
+        "start_date": "05.10.2026",
+        "days_count": "5"
+      },
+      "normalized": [
+        "employee_name"
+      ],
+      "issues": []
+    },
+    {
+      "file": "documents/15_trip_errors.pdf",
+      "type": "BUSINESS_TRIP_REQUEST",
+      "about": "PDF. Не указана цель, дата начала без года, срок словами.",
+      "fields": {
+        "employee_name": "Кузнецов Игорь Олегович",
+        "destination": "г. Казань",
+        "start_date": "5 октября",
+        "days_count": "пять"
+      },
+      "normalized": [
+        "employee_name"
+      ],
+      "issues": [
+        "T3",
+        "T5",
+        "T6"
+      ]
+    },
+    {
+      "file": "documents/16_trip_missing.docx",
+      "type": "BUSINESS_TRIP_REQUEST",
+      "about": "Не указаны сотрудник, место и дата начала: пустые поля ловят только правила «Заполнено».",
+      "fields": {
+        "purpose": "переговоры с заказчиком о графике поставок",
+        "days_count": "3"
+      },
+      "normalized": [],
+      "issues": [
+        "T1",
+        "T2",
+        "T4"
+      ]
+    }
+  ]
+}
